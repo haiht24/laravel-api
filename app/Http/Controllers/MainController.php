@@ -27,16 +27,19 @@ class MainController extends Controller {
 	public function save(Request $r){
 		$request = $r->input('data');
 		$result = [];
-		$data = File::get('demo_data.txt');
-		$crawler = new Crawler($data);
+		// $data = File::get('demo_data.html');
+		$data = $r['data'];
 
+		$crawler = new Crawler($data);
+		// return json_encode($data);
 		$coupons = $crawler->filter('div.offer')->each(function (Crawler $node, $i) {
 		    // echo $node->html()."<br/>";
 		    try{
 		    	$c = [];
 		    	$anchorImage = $node->filter('.anchor-image');
 		    	if(!empty(trim($node->filter('.anchor-image')->html()))){
-		    		$c['discount'] = $node->filter('.anchor-image > .anchor-big-text')->text();
+		    		if($node->filter('.anchor-big-text')->count() > 0)
+		    			$c['discount'] = $node->filter('.anchor-image > .anchor-big-text')->text();
 		    	}
 		    	$c['type'] = trim($node->filter('.additional-anchor')->text());
 		    	$c['title'] = trim($node->filter('.title')->text());
@@ -60,6 +63,7 @@ class MainController extends Controller {
 		    	}
 		    	return $c;
 		    }catch(\Exception $e){
+		    	// echo $node->html()."<br/>";die;
 		    	echo $e;die;
 		    }
 		});
@@ -95,7 +99,6 @@ class MainController extends Controller {
 			}
 
 		}
-		echo '<pre>';var_dump($result);die;
 		return json_encode($result);
 	}
 
